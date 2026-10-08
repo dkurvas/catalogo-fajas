@@ -320,7 +320,7 @@ loadProductsFromSupabase();
 (function(){
   const params = new URLSearchParams(window.location.search);
   const seller = (params.get("vendedor") || "").trim();
-  const sellers = ["Dariana C.","Diana S.","Stefany S."];
+  const sellers = ["Dariana C","Diana S","Stefany S"];
   const assignedSeller = sellers.includes(seller) ? seller : "";
   const el = document.getElementById("sellerName");
   if(el) el.textContent = assignedSeller || "Sin asignar";
