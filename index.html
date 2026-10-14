@@ -173,6 +173,7 @@ select,input{width:100%;box-sizing:border-box;padding:9px;margin:4px 0;border:1p
 <div id="sections"></div>
 <div class="order"><h3>MI PEDIDO</h3><div id="items"><div class="note">Aún no has agregado productos.</div></div>
 <div class="totals">
+<div class="row" style="font-weight:800;padding:8px 0 10px;border-bottom:1px solid #eee;margin-bottom:7px"><span>TOTAL DE UNIDADES</span><b id="units">0</b></div>
 <div class="row"><span>Subtotal</span><b id="sub">$0.00</b></div>
 <div class="row discountrow"><span id="discLabel">Descuento</span><b id="disc">$0.00</b></div>
 <div class="iva"><span class="ivalabel">IVA 16%</span><b id="ivaval">$0.00</b></div>
@@ -249,6 +250,7 @@ function calc(){
  const sub=cart.reduce((a,x)=>a+x.price*x.qty,0), units=cart.reduce((a,x)=>a+x.qty,0);
  let pct=0;if(units>=6){if(sub>=40000)pct=.5;else if(sub>=25000)pct=.4;else pct=.2}
  const dis=sub*pct, base=sub-dis, iv=(base*.16);
+ document.getElementById("units").textContent=units;
  subEl=document.getElementById("sub");subEl.textContent=money(sub);document.getElementById("discLabel").textContent=pct?`Descuento (${pct*100}%)`:"Descuento";document.getElementById("disc").textContent=money(dis);
  document.getElementById("ivaval").textContent=money(iv);document.getElementById("total").textContent=money(base+iv);
  document.getElementById("logo").style.display=base>=25000?"block":"none";
@@ -269,7 +271,7 @@ document.getElementById("sendWhatsApp").addEventListener("click",()=>{
  const discount=sub*pct;
  const base=sub-discount;
  const iva=base*.16;
- const lines=["*D’KURVAS — COTIZACIÓN*", "Médico: "+doctor, "Dirección: "+address, "", "*Productos:*", ...cart.map(x=>"• "+x.name+(x.code?" ("+x.code+")":"")+" | Talla: "+x.size+" | Cantidad: "+x.qty+" | "+money(x.price*x.qty)),"", "Subtotal: "+money(sub),"Descuento ("+(pct*100)+"%): -"+money(discount),"IVA 16%: "+money(iva),"*TOTAL: "+money(base+iva)];
+ const lines=["*D’KURVAS — COTIZACIÓN*", "Médico: "+doctor, "Dirección: "+address, "", "*Productos:*", ...cart.map(x=>"• "+x.name+(x.code?" ("+x.code+")":"")+" | Talla: "+x.size+" | Cantidad: "+x.qty+" | "+money(x.price*x.qty)),"", "*TOTAL DE UNIDADES: "+units+"*", "", "Subtotal: "+money(sub),"Descuento ("+(pct*100)+"%): -"+money(discount),"IVA 16%: "+money(iva),"*TOTAL: "+money(base+iva)];
  if(base>=25000){const choice=document.querySelector('input[name="lg"]:checked');lines.push("Logo médico: "+(choice?(choice.value==="si"?"Sí":"No"):"Sin seleccionar"));}
  const url="https://wa.me/525513324512?text="+encodeURIComponent(lines.join("\n"));
  window.open(url,"_blank","noopener,noreferrer");
