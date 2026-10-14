@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Prototipo Catálogo V19 - Supabase - IVA</title>
+<title>Catálogo D'KURVAS V20 - IVA fijo - WhatsApp</title>
 <style>
 body{font-family:Arial,sans-serif;margin:0;background:#f5f2ee;color:#292522}
 .wrap{max-width:760px;margin:auto;padding:18px}.top{text-align:center;margin-bottom:16px}
@@ -154,6 +154,12 @@ select,input{width:100%;box-sizing:border-box;padding:9px;margin:4px 0;border:1p
 .send-order:active{transform:translateY(1px)}
 .send-note{margin-top:9px;font-size:12px;color:#666;text-align:center}
 
+
+.whatsapp-area{margin-top:18px;padding:15px;border:1px solid #e4ddd5;border-radius:12px;background:#faf8f5}
+.whatsapp-area label{display:block;font-size:14px;font-weight:700;margin-bottom:7px}
+.whatsapp-area input{width:100%;font-size:16px}
+.whatsapp-btn{display:block;width:100%;padding:14px 10px;margin-top:12px;background:#1e854b;color:white;border:0;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer}
+.whatsapp-area .note{margin-top:8px;line-height:1.5}
 </style></head>
 <body>
 
@@ -169,37 +175,20 @@ select,input{width:100%;box-sizing:border-box;padding:9px;margin:4px 0;border:1p
 <div class="totals">
 <div class="row"><span>Subtotal</span><b id="sub">$0.00</b></div>
 <div class="row discountrow"><span id="discLabel">Descuento</span><b id="disc">$0.00</b></div>
-<div class="iva"><span class="ivalabel">IVA 16%</span><b id="ivaval">$0.00</b></div>
+<div class="iva"><span class="ivalabel">IVA 16% (incluido siempre)</span><b id="ivaval">$0.00</b></div>
 <div class="row totalrow"><span>TOTAL</span><b id="total">$0.00</b></div>
 <div id="logo" class="logo"><b>Beneficio por compra desde $25,000 después del descuento</b><br>
 ¿Desea incluir logo médico?
 <div class="logoOptions"><label class="logoOption"><input type="radio" name="lg" value="si"> <span>Sí</span></label><label class="logoOption"><input type="radio" name="lg" value="no"> <span>No</span></label></div></div>
-</div></div></div>
-
-<div class="customer-data" id="customerData">
-  <h3>DATOS DEL CLIENTE</h3>
-  <div class="customer-grid">
-    <div class="customer-field">
-      <label for="clientName">Médico / Cliente</label>
-      <input id="clientName" type="text" autocomplete="name">
-    </div>
-    <div class="customer-field">
-      <label for="clientPhone">Teléfono / WhatsApp</label>
-      <input id="clientPhone" type="tel" autocomplete="tel">
-    </div>
-    <div class="customer-field full">
-      <label for="clientAddress">Dirección de entrega</label>
-      <input id="clientAddress" type="text" autocomplete="street-address">
-    </div>
-    <div class="customer-field">
-      <label for="clientCity">Ciudad</label>
-      <input id="clientCity" type="text" autocomplete="address-level2">
-    </div>
-  </div>
-  <div class="seller-line">Vendedor: <strong id="sellerName">Sin asignar</strong></div>
-  <button type="button" id="sendOrder" class="send-order">✓ ENVIAR PEDIDO</button>
-  <div class="send-note">Versión de prueba: valida el pedido y muestra la confirmación; todavía no lo envía por Internet.</div>
 </div>
+<div class="whatsapp-area">
+<label for="doctorName">Nombre del médico</label>
+<input id="doctorName" type="text" placeholder="Escribe el nombre del médico" autocomplete="name">
+<label for="doctorAddress" style="margin-top:12px">Dirección</label>
+<input id="doctorAddress" type="text" placeholder="Escribe la dirección del médico" autocomplete="street-address">
+<button id="sendWhatsApp" class="whatsapp-btn" type="button">Enviar cotización por WhatsApp</button>
+<div class="note">Se abrirá WhatsApp con la cotización preparada para el número autorizado. La vendedora debe pulsar Enviar en WhatsApp.</div>
+</div></div></div>
 
 <script>
 const sizesF=["2XS","XS","S","M","L","XL","2XL","3XL","4XL","5XL"];
@@ -208,7 +197,7 @@ const sizesM=["S","M","L","XL","2XL","3XL"];
 const sizesTorero=["2XS","XS","S","M","L","XL","2XL"];
 const sizesBra=["30/XS","32/S","34/M","36/L","38/XL","40/2XL","42/3XL","44/4XL","46/5XL"];
 const sizeUnique=["ÚNICA"];
-let products=[
+const products=[
  {cat:"FAJAS FEMENINAS",name:"ROMA",code:"MPTB",desc:"Faja Media Pierna Tira Broche",price:1500,sizes:sizesF},
  {cat:"FAJAS FEMENINAS",name:"VIENA",code:"MPTC",desc:"Faja Media Pierna Tira Cierre Lateral",price:1500,sizes:sizesF},
  {cat:"FAJAS FEMENINAS",name:"NATHA",code:"MPSB",desc:"Faja Media Pierna Sisa Broche",price:1550,sizes:sizesF},
@@ -259,88 +248,34 @@ function renderCart(){
 function calc(){
  const sub=cart.reduce((a,x)=>a+x.price*x.qty,0), units=cart.reduce((a,x)=>a+x.qty,0);
  let pct=0;if(units>=6){if(sub>=40000)pct=.5;else if(sub>=25000)pct=.4;else pct=.2}
- const dis=sub*pct, base=sub-dis, iv=base*.16;
+ const dis=sub*pct, base=sub-dis, iv=(base*.16);
  subEl=document.getElementById("sub");subEl.textContent=money(sub);document.getElementById("discLabel").textContent=pct?`Descuento (${pct*100}%)`:"Descuento";document.getElementById("disc").textContent=money(dis);
  document.getElementById("ivaval").textContent=money(iv);document.getElementById("total").textContent=money(base+iv);
  document.getElementById("logo").style.display=base>=25000?"block":"none";
 }
+
+
+// V20: generar resumen directamente en WhatsApp, sin guardar información en servidores.
+document.getElementById("sendWhatsApp").addEventListener("click",()=>{
+ if(!cart.length){alert("Agrega al menos un producto antes de enviar la cotización.");return;}
+ const doctor=document.getElementById("doctorName").value.trim();
+ if(!doctor){alert("Escribe el nombre del médico.");document.getElementById("doctorName").focus();return;}
+ const address=document.getElementById("doctorAddress").value.trim();
+ if(!address){alert("Escribe la dirección del médico.");document.getElementById("doctorAddress").focus();return;}
+ const sub=cart.reduce((sum,x)=>sum+x.price*x.qty,0);
+ const units=cart.reduce((sum,x)=>sum+x.qty,0);
+ let pct=0;
+ if(units>=6){if(sub>=40000)pct=.5;else if(sub>=25000)pct=.4;else pct=.2;}
+ const discount=sub*pct;
+ const base=sub-discount;
+ const iva=base*.16;
+ const lines=["*D’KURVAS — COTIZACIÓN*", "Médico: "+doctor, "Dirección: "+address, "", "*Productos:*", ...cart.map(x=>"• "+x.name+(x.code?" ("+x.code+")":"")+" | Talla: "+x.size+" | Cantidad: "+x.qty+" | "+money(x.price*x.qty)),"", "Subtotal: "+money(sub),"Descuento ("+(pct*100)+"%): -"+money(discount),"IVA 16%: "+money(iva),"*TOTAL: "+money(base+iva)];
+ if(base>=25000){const choice=document.querySelector('input[name="lg"]:checked');lines.push("Logo médico: "+(choice?(choice.value==="si"?"Sí":"No"):"Sin seleccionar"));}
+ const url="https://wa.me/525513324512?text="+encodeURIComponent(lines.join("\n"));
+ window.open(url,"_blank","noopener,noreferrer");
+});
+
 renderSections();renderCart();
 
-// V19: carga segura desde Supabase. Si la conexión falla, conserva el catálogo V18 visible.
-const SUPABASE_URL = "PEGA_AQUI_SUPABASE_URL";
-const SUPABASE_PUBLISHABLE_KEY = "PEGA_AQUI_SUPABASE_PUBLISHABLE_KEY";
-
-function normalizeCategory(v){
-  const t=String(v||"").trim().toUpperCase();
-  if(t.includes("FEM")) return "FAJAS FEMENINAS";
-  if(t.includes("MASC")) return "FAJAS MASCULINAS";
-  if(t.includes("COMP")) return "COMPLEMENTOS";
-  return t;
-}
-function sizesForRow(r,cat){
-  const raw=r.tallas ?? r.sizes ?? r.talla;
-  if(Array.isArray(raw) && raw.length) return raw;
-  if(typeof raw==="string" && raw.trim()) return raw.split(/[,;|]/).map(x=>x.trim()).filter(Boolean);
-  const code=String(r.referencia ?? r.codigo ?? r.code ?? "").toLowerCase();
-  if(code==="mltt") return sizesTorero;
-  if(code==="brascp") return sizesBra;
-  if(cat==="FAJAS MASCULINAS") return sizesM;
-  if(cat==="COMPLEMENTOS") return sizeUnique;
-  return sizesF;
-}
-async function loadProductsFromSupabase(){
-  if(SUPABASE_URL.startsWith("PEGA_AQUI_") || SUPABASE_PUBLISHABLE_KEY.startsWith("PEGA_AQUI_")) return;
-  try{
-    const url=SUPABASE_URL.replace(/\/$/,"")+"/rest/v1/referencias?select=*";
-    const res=await fetch(url,{headers:{apikey:SUPABASE_PUBLISHABLE_KEY,Authorization:"Bearer "+SUPABASE_PUBLISHABLE_KEY}});
-    if(!res.ok) throw new Error("Supabase respondió "+res.status);
-    const rows=await res.json();
-    if(!Array.isArray(rows)||!rows.length) throw new Error("La tabla referencias no devolvió registros");
-    const mapped=rows.map(r=>{
-      const cat=normalizeCategory(r.categoria ?? r.category ?? r.cat ?? r.tipo);
-      return {
-        cat,
-        name:String(r.nombre ?? r.name ?? r.producto ?? "").trim(),
-        code:String(r.referencia ?? r.codigo ?? r.code ?? r.sku ?? "").trim(),
-        desc:String(r.descripcion ?? r.description ?? r.desc ?? "").trim(),
-        price:Number(r.precio ?? r.price ?? r.precio_venta ?? 0),
-        sizes:sizesForRow(r,cat)
-      };
-    }).filter(x=>cats.includes(x.cat)&&x.name&&Number.isFinite(x.price));
-    if(!mapped.length) throw new Error("No se reconocieron las columnas de la tabla referencias");
-    products=mapped;
-    renderSections();
-  }catch(err){
-    console.error("No se pudo cargar Supabase; se conserva el catálogo local V18.",err);
-  }
-}
-loadProductsFromSupabase();
-
 // V14: el vendedor se asigna automáticamente desde el enlace individual.
-(function(){
-  const params = new URLSearchParams(window.location.search);
-  const seller = (params.get("vendedor") || "").trim();
-  const sellers = ["Dariana C","Diana S","Stefany S"];
-  const assignedSeller = sellers.includes(seller) ? seller : "";
-  const el = document.getElementById("sellerName");
-  if(el) el.textContent = assignedSeller || "Sin asignar";
-})();
-
-// V18: validación y confirmación de prueba del pedido.
-document.getElementById("sendOrder").onclick=()=>{
-  const name=document.getElementById("clientName").value.trim();
-  const phone=document.getElementById("clientPhone").value.trim();
-  const address=document.getElementById("clientAddress").value.trim();
-  const city=document.getElementById("clientCity").value.trim();
-  const seller=document.getElementById("sellerName").textContent.trim();
-  if(!cart.length){show("Agregue al menos un producto antes de enviar el pedido.");return}
-  if(!name){show("Ingrese el nombre del médico / cliente.");document.getElementById("clientName").focus();return}
-  if(!phone){show("Ingrese el teléfono / WhatsApp.");document.getElementById("clientPhone").focus();return}
-  if(!address){show("Ingrese la dirección de entrega.");document.getElementById("clientAddress").focus();return}
-  if(!city){show("Ingrese la ciudad.");document.getElementById("clientCity").focus();return}
-  if(!seller || seller==="Sin asignar"){show("Este acceso no tiene una vendedora asignada.");return}
-  const orderNo="DK-"+String(Date.now()).slice(-6);
-  alert(`PEDIDO ${orderNo} VALIDADO\n\nMédico / Cliente: ${name}\nVendedora: ${seller}\n\nEsta es una confirmación de prueba. El pedido todavía no se envía por Internet.`);
-};
-
 </script></body></html>
